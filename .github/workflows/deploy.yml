@@ -15,6 +15,7 @@ jobs:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      DATABRICKS_CONFIG_FILE: '~/.databrickscfg'
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -24,10 +25,11 @@ jobs:
 
       - name: Configure Databricks CLI
         run: |
-          echo "[DEFAULT]" > ~/.databrickscfg
-          echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
-          echo "client_id = ${{ env.DATABRICKS_CLIENT_ID }}" >> ~/.databrickscfg
-          echo "client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}" >> ~/.databrickscfg
+          cat > ~/.databrickscfg << EOF
+          [DEFAULT]
+          host = ${{ env.DATABRICKS_HOST }}
+          client_id = ${{ env.DATABRICKS_CLIENT_ID }}
+          client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}
 
       - name: Deploy notebooks (bronze/silver/gold)
         run: |
