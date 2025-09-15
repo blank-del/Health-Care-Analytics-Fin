@@ -1,0 +1,36 @@
+name: Deploy Databricks Notebooks
+
+on:
+  push:
+    paths:
+      - 'notebooks/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Configure Databricks CLI with service principal
+        run: |
+          databricks configure --aad-token \
+            --host ${{ env.DATABRICKS_HOST}} \
+            --client-id ${{ env.DATABRICKS_CLIENT_ID }} \
+            --client-secret ${{ env.DATABRICKS_CLIENT_SECRET }}
+
+      - name: Deploy notebooks (bronze/silver/gold)
+        run: |
+          databricks workspace import_dir ./notebooks/bronze /Projects/HealthcareFIN/bronze --overwrite
+          databricks workspace import_dir ./notebooks/silver /Projects/HealthcareFIN/silver --overwrite
+          databricks workspace import_dir ./notebooks/gold /Projects/HealthcareFIN/gold --overwrite
