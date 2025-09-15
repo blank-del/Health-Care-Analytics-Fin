@@ -22,12 +22,15 @@ jobs:
       - name: Install Databricks CLI
         run: pip install databricks-cli
 
-      - name: Configure Databricks CLI with service principal
+      - name: Configure Databricks CLI
         run: |
-          databricks configure --aad-token \
-            --host ${{ env.DATABRICKS_HOST}} \
-            --client-id ${{ env.DATABRICKS_CLIENT_ID }} \
-            --client-secret ${{ env.DATABRICKS_CLIENT_SECRET }}
+          mkdir -p ~/.databricks
+          cat <<EOF > ~/.databricks/config
+          [DEFAULT]
+          host = ${{ env.DATABRICKS_HOST }}
+          client_id = ${{ env.DATABRICKS_CLIENT_ID }}
+          client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}
+          EOF
 
       - name: Deploy notebooks (bronze/silver/gold)
         run: |
