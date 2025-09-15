@@ -24,13 +24,13 @@ jobs:
 
       - name: Configure Databricks CLI
         run: |
-          mkdir -p ~/.databricks
-          cat <<EOF > ~/.databricks/config
+          cat > ~/.databrickscfg <<EOF
           [DEFAULT]
           host = ${{ env.DATABRICKS_HOST }}
           client_id = ${{ env.DATABRICKS_CLIENT_ID }}
           client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}
           EOF
+          chmod 600 ~/.databrickscfg
 
       - name: Deploy notebooks (bronze/silver/gold)
         run: |
