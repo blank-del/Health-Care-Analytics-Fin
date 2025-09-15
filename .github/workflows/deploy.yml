@@ -30,6 +30,7 @@ jobs:
           host = ${{ env.DATABRICKS_HOST }}
           client_id = ${{ env.DATABRICKS_CLIENT_ID }}
           client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}
+          EOF
 
       - name: Deploy notebooks (bronze/silver/gold)
         run: |
