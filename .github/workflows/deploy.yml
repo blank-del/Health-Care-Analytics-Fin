@@ -22,8 +22,24 @@ jobs:
       - name: Install Databricks CLI
         run: curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
-      - name: Deploy notebooks (bronze/silver/gold)
+      - name: Determine changed notebooks
+        id: changes
         run: |
-          databricks workspace import_dir ./notebooks/bronze /Projects/HealthcareFIN/bronze --overwrite
-          databricks workspace import_dir ./notebooks/silver /Projects/HealthcareFIN/silver --overwrite
-          databricks workspace import_dir ./notebooks/gold /Projects/HealthcareFIN/gold --overwrite
+          CHANGED_FOLDERS=""
+          if git diff --name-only HEAD~1 HEAD | grep -q "^notebooks/bronze/"; then
+            CHANGED_FOLDERS="$CHANGED_FOLDERS bronze"
+          fi
+          if git diff --name-only HEAD~1 HEAD | grep -q "^notebooks/silver/"; then
+            CHANGED_FOLDERS="$CHANGED_FOLDERS silver"
+          fi
+          if git diff --name-only HEAD~1 HEAD | grep -q "^notebooks/gold/"; then
+            CHANGED_FOLDERS="$CHANGED_FOLDERS gold"
+          fi
+          echo "changed=$CHANGED_FOLDERS" >> $GITHUB_OUTPUT
+      
+      - name: Deploy changed notebooks
+        run: |
+          for folder in ${{ steps.changes.outputs.changed }}; do
+            echo "Deploying $folder notebooks..."
+            databricks workspace import-dir ./notebooks/$folder /Projects/HealthcareFIN/$folder --overwrite
+          done
