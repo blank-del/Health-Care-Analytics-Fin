@@ -15,22 +15,12 @@ jobs:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-      DATABRICKS_CONFIG_FILE: ${{ github.workspace }}/.databrickscfg
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Install Databricks CLI
-        run: pip install databricks-cli
-
-      - name: Configure Databricks CLI
-        run: |
-          cat > $DATABRICKS_CONFIG_FILE << EOF
-          [DEFAULT]
-          host = ${{ env.DATABRICKS_HOST }}
-          client_id = ${{ env.DATABRICKS_CLIENT_ID }}
-          client_secret = ${{ env.DATABRICKS_CLIENT_SECRET }}
-          EOF
+        run: curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
       - name: Deploy notebooks (bronze/silver/gold)
         run: |
